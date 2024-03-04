@@ -100,24 +100,20 @@ const movies = [
 const movieDocuments = movies.map(movie => new Movie(movie));
 
 
-// En este caso, nos conectaremos de nuevo a nuestra base de datos
-// pero nos desconectaremos tras insertar los documentos
+// Conexión de nuevo a la DB e inserto de los documentos
 mongoose.connect(process.env.DB_URL, {})
+
   .then(async () => {
-		// Utilizando Movie.find() obtendremos un array con todas las películas de la db
-    const allMovies = await Movie.find();
-		
-		// Si existen películas previamente, dropearemos la colección
+    const allMovies = await Movie.find(); 
+
     if (allMovies.length) {
-      await Movie.collection.drop(); //La función drop borra la colección
+      await Movie.collection.drop(); //Si hay películas, se borra la colección
     }
   })
   .catch((err) => console.log(`Error borrando las películas: ${err}`))
   .then(async () => {
-		// Una vez vaciada la db de las películas, usaremos el array movieDocuments
-		// para llenar nuestra base de datos con todas los películas.
-		await Movie.insertMany(movieDocuments);
+		await Movie.insertMany(movieDocuments);// metemos películas una vez vaciada la DB
 	})
   .catch((err) => console.log(`Error creando las películas: ${err}`))
-	// Por último nos desconectaremos de la DB.
   .finally(() => mongoose.disconnect());
+  // Desconexión final de la DB.
