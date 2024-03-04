@@ -46,6 +46,20 @@ try {
 }
 });
 
+router.get('/director/:director', async (req, res) => {
+  const {director} = req.params;
+    const normalizedDirector = director.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/-/g, "");
+    console.log(director)
+  
+  try {
+        const movieByDirector = await Movie.find({ director: { $regex: new RegExp(normalizedDirector, "i") } });
+    return res.status(200).json(movieByDirector);
+  
+  } catch (err) {
+    return res.status(500).json(err);
+  }
+  });
+
 router.post('/create', async (req, res, next) => {
   try {
     // Crearemos una instancia de movie con los datos enviados
@@ -58,7 +72,7 @@ router.post('/create', async (req, res, next) => {
 
     // Guardamos la película en la DB
     const createdMovie = await newMovie.save();
-    return res.status(201).json(createdMovie);
+    return res.status(201).json({movie: createdMovie, message: 'película creada!'});
   } catch (error) {
         // Lanzamos la función next con el error para que lo gestione Express
     next(error);
@@ -70,12 +84,25 @@ router.put('/edit/:id', async (req, res, next) => {
       const { id } = req.params //Recuperamos el id de la url
       const movieModify = new Movie(req.body) //instanciamos un nuevo Movie con la información del body
       movieModify._id = id //añadimos la propiedad _id a la pelicula creada
-      const movieUpdated = await Movie.findByIdAndUpdate(id , movieModify)
-      return res.status(200).json(movieUpdated)//Esta pelicula que devolvemos es la anterior a su modificación
+      const movieUpdated = await Movie.findByIdAndUpdate(id , movieModify, { new: true })
+      return res.status(200).json({movie: movieUpdated, message: 'película actualizada!'})//Esta pelicula que devolvemos es la anterior a su modificación
   } catch (error) {
       return next(error)
   }
 });
+
+router.delete('/:id', async (req,res, next) => {
+  try {
+    const { id } = req.params //Recuperamos el id de la url
+    // No será necesaria asignar el resultado a una variable ya que vamos a eliminarlo
+    await Movie.findByIdAndDelete(id);
+    return res.status(200).json(({ message: 'película borrada!'}));
+  } catch (error) {
+    return next(error);
+  }
+});
+
+
 
 module.exports = router;
 
