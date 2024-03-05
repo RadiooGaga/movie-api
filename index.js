@@ -1,20 +1,21 @@
 require("dotenv").config();
-const express = require('express')
-const { connectDB } = require('./src/config/db');
-const movieRoutes = require('./src/api/routes/movie.routes');
+const express = require('express');
+const mainRouter = require('./src/api/routes/movie.routes')
+const { connectDB } = require('./src/config/db'); 
+
 
 connectDB();
 const PORT = 3001;
 const server = express();
-const router = express.Router();
+
 
 // POST: un middleware que analiza la solicitud del cuerpo y convierte esos datos JSON
 // en un objeto JavaScript accesible y los analiza de forma sencilla
 server.use(express.json());
 server.use(express.urlencoded({ extended: false }));
 
-//server.use('/', router);
-server.use('/movies', movieRoutes);
+
+server.use('/', mainRouter);
 
 
 // todas las rutas que no tengan respuesta entrarán por aquí
