@@ -1,6 +1,6 @@
 const express = require('express');
 const Movie = require('../models/Movie.js');
-const { getAllMovies, getMoviesById, getMoviesByGenre, getMoviesByDirector, createNewMovie, editUpdateMovieById, deleteMovieById } = require('../controllers/movieControllers.js');
+const { getAllMovies, getMoviesById, getMoviesByGenre, getMoviesByDirector, createNewMovie, updateMovieById, deleteMovieById } = require('../controllers/movieControllers.js');
 const router = express.Router();
 
 
@@ -23,7 +23,7 @@ router.get('/director/:director', getMoviesByDirector);
 router.post('/create', createNewMovie);
 
 //Actualizar/editar película por ID
-router.put('/edit/:id', editUpdateMovieById);
+router.patch('/edit/:id', updateMovieById);
 
 //Borrar película por ID
 router.delete('/:id', deleteMovieById);

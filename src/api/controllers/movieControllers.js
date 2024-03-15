@@ -28,15 +28,15 @@ const getMoviesById = async (req, res) => {
 
 //Traer película por género
 const getMoviesByGenre = async (req, res) => {
-    const {genre} = req.params;
-      const normalizedGenre = genre.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/-/g, "");
-      console.log(genre)
     
     try {
-          const movieByGenre = await Movie.find({ genre: { $regex: new RegExp(normalizedGenre, "i") } });
+      const { genre } = req.params;
+      const movieByGenre = await Movie.find({ genre: { $regex: genre, $options: 'i' }});
+      console.log("película por genero")
       return res.status(200).json(movieByGenre);
     
     } catch (err) {
+      console.log("error al traer la peli por genero", err)
       return res.status(500).json(err);
     }
 };
@@ -44,22 +44,24 @@ const getMoviesByGenre = async (req, res) => {
 
 //Traer película por director
 const getMoviesByDirector = async (req, res) => {
-    const {director} = req.params;
-      const normalizedDirector = director.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/-/g, "");
-      console.log(director)
+  try {
+      const { director } = req.params;
+      const normalizedDirector = director.normalize("NFKD").replace(/[áéíóúÁÉÍÓÚ]/g, "");
+      const regex = new RegExp(normalizedDirector, "i");
+      const movieByDirector = await Movie.find({ director: { $regex: regex } });
+
     
-    try {
-          const movieByDirector = await Movie.find({ director: { $regex: new RegExp(normalizedDirector, "i") } });
+       
+      console.log(movieByDirector);
       return res.status(200).json(movieByDirector);
-    
-    } catch (err) {
+  } catch (err) {
       return res.status(500).json(err);
-    }
-    
+  }
 };
 
 //Crear nueva película
 const createNewMovie = async (req, res, next) => {
+  
     try {
       // Crearemos una instancia de movie con los datos enviados
       const newMovie = new Movie({
@@ -80,12 +82,13 @@ const createNewMovie = async (req, res, next) => {
 
 
 //Actualizar/editar película por ID
-const editUpdateMovieById = async (req, res, next) => {
+const updateMovieById = async (req, res, next) => {
     try {
         const { id } = req.params 
         const movieModify = new Movie(req.body) 
         movieModify._id = id
         const movieUpdated = await Movie.findByIdAndUpdate(id , movieModify, { new: true })
+        
         return res.status(200).json({movie: movieUpdated, message: 'película actualizada!'})
     } catch (error) {
         return next(error)
@@ -110,6 +113,6 @@ module.exports = {
     getMoviesByGenre,
     getMoviesByDirector,
     createNewMovie,
-    editUpdateMovieById,
+    updateMovieById,
     deleteMovieById
 }

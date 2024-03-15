@@ -4,9 +4,6 @@ const mongoose = require('mongoose');
 const Movie = require('../models/Movie');
 
 
-const movieDocuments = Movie.map(movie => new Movie(movie));
-
-
 // Conexión de nuevo a la DB e inserto de los documentos
 mongoose.connect(process.env.DB_URL, {})
 
